@@ -38,8 +38,53 @@ const storeUserImage = async (req, user_id) => {
 }
 
 exports.deletePicture = async (req, res, user_id, is_admin) => {
-    if(!req.body.picture_id){
-        return res.status(500).json({error: 'no_image_sent'});
+    try{
+        console.log("uno");
+        if(!req.body.picture_id){
+            return res.status(500).json({error: 'no_image_sent??'});
+        }
+        console.log("due");
+        const picture_id = req.body.picture_id;
+        const original_filename = `${process.env.IMAGE_UPLOAD_PATH}/picture-${picture_id}`;
+        const tiny_filename = `${process.env.IMAGE_UPLOAD_PATH}/tiny-picture-${picture_id}`;
+        const small_filename = `${process.env.IMAGE_UPLOAD_PATH}/small-picture-${picture_id}`;
+        const big_filename = `${process.env.IMAGE_UPLOAD_PATH}/big-picture-${picture_id}`;
+        console.log("tre");
+
+        if(fs.existsSync(original_filename)){
+            fs.unlinkSync(original_filename);
+        }
+        if(fs.existsSync(tiny_filename)){
+            fs.unlinkSync(tiny_filename);
+        }
+        if(fs.existsSync(small_filename)){
+            fs.unlinkSync(small_filename);
+        }
+        if(fs.existsSync(big_filename)){
+            fs.unlinkSync(big_filename);
+        }
+        const url_controller = is_admin ? 'texas' : 'user';
+        const url = `${api_base_url}/${url_controller}/deletePicture`;
+        console.log("url",url);
+        const params = {};
+        params.picture_id = picture_id;
+        if(is_admin){
+            params.user_id = req.body.user_id;
+        }
+        console.log("params",params);
+        const api_call = await superagent.delete(url).set('Accept', 'application/json')
+            .set('Authorization', `Bearer ${req.auth}`)
+            .send(params);
+        const body = api_call?.body;
+        console.log("body",body);
+        if(body?.message === 'ok'){
+            return res.json({message: "ok"});
+        }
+        res.status(401).send({message: 'something_went_wrong'});
+    }
+    catch(exception){
+        console.log("exception",exception);
+        res.status(401).send({message: exception});
     }
 }
 
