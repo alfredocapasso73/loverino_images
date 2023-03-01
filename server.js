@@ -4,16 +4,15 @@ const app = express();
 app.use(express.json({limit: '50mb'}));
 app.use(express.urlencoded({ extended: true }));
 
-const cors_origins = [];
-if(process.env.IS_LOCAL){
-    cors_origins.push('http://texas.localoverino.se:8080');
-    cors_origins.push('http://localoverino.se:8080');
-}
-else{
-    cors_origins.push('https://www.loverino.se');
-    cors_origins.push('https://loverino.se');
-    cors_origins.push('https://texas.loverino.se');
-}
+const cors_origins =
+    [
+        "https://localoverino.se:8080"
+        ,"https://texas.localoverino.se:8080"
+        ,"https://loverino.se"
+        ,"https://www.loverino.se"
+        ,"https://texas.loverino.se"
+    ];
+
 app.use(cors({
     origin: cors_origins,
     methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
@@ -23,6 +22,9 @@ app.use(cors({
 const auth = require('./middlewares/auth');
 const helper = require('./helpers/helper');
 
+app.get("/", (req, res) => {
+    res.status(200).json({ alive: "True" });
+});
 app.get("/getImage/:image", async (req, res) => {
     return helper.getImage(req, res);
 });

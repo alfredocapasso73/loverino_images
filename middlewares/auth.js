@@ -6,6 +6,7 @@ exports.validateRequest = async (req, res, next) => {
         const auth = req.headers.authorization.split(' ')[1];
         try{
             const url = `${api_base_url}/user/apiToken`;
+            process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
             const api_call = await superagent.post(url).set('Accept', 'application/json').set('Authorization', `Bearer ${auth}`);
             const body = api_call?.body;
             if(body?.message !== 'ok' || !body?.user){
